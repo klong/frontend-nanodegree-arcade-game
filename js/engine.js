@@ -14,7 +14,8 @@
  * a little simpler to work with.
  */
 
-var Engine = (function(global) {
+var Engine = (function (global) {
+    'use strict';
     /* Predefine the variables we'll be using within this scope,
      * create the canvas element, grab the 2D context for that canvas
      * set the canvas elements height/width and add it to the DOM.
@@ -23,10 +24,42 @@ var Engine = (function(global) {
         win = global.window,
         canvas = doc.createElement('canvas'),
         ctx = canvas.getContext('2d'),
-        lastTime;
+        lastTime,
+        gb = {
+            boardStartX: 0,
+            boardStartY: 0,
+            numCols: 18, // number of game board horizontal tiles
+            numRows: 12, // number of game board vertical tiles
+            tileWidth: 40, // tile width
+            tileHeight: 45, // tile height
+            // using 'get' to initialise object properties based on other properties of the object
+            get tileBottomVisible () {
+                // the extra pixels visble for the 3D look on bottom row of tiles
+                return Math.floor(this.tileHeight / 2);
+            },
+            get tileVOverlap () {
+                // the vertical tile overlap adjustment
+                return Math.floor(this.tileHeight / 5);
+            },
+            get gameBoardWidth () {
+                // horizontal area of game board
+                return this.numCols * this.tileWidth;
+            },
+            get gameBoardHeight () {
+                // vertical area of game board
+                return this.numRows * this.tileHeight + this.tileBottomVisible;
+            }
+        };
 
-    canvas.width = 505;
-    canvas.height = 606;
+    // set size of the HTML canvas to the gameboard with a half-tile width margin
+    //canvas.width = gb.gameBoardWidth + gb.tileWidth;
+    //canvas.height = gb.gameBoardHeight + gb.tileHeight;
+
+    canvas.width = gb.gameBoardWidth;
+    canvas.height = gb.gameBoardHeight;
+
+    // append the HTML canvas to the index.html page
+
     doc.body.appendChild(canvas);
 
     /* This function serves as the kickoff point for the game loop itself
@@ -41,18 +74,15 @@ var Engine = (function(global) {
          */
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
-
         /* Call our update/render functions, pass along the time delta to
          * our update function since it may be used for smooth animation.
          */
         update(dt);
         render();
-
         /* Set our lastTime variable which is used to determine the time delta
          * for the next time this function is called.
          */
         lastTime = now;
-
         /* Use the browser's requestAnimationFrame function to call this
          * function again as soon as the browser is able to draw another frame.
          */
@@ -104,40 +134,58 @@ var Engine = (function(global) {
      * they are just drawing the entire screen over and over.
      */
     function render() {
-        /* This array holds the relative URL to the image used
-         * for that particular row of the game level.
-         */
-        var rowImages = [
-                'images/water-block.png',   // Top row is water
-                'images/stone-block.png',   // Row 1 of 3 of stone
-                'images/stone-block.png',   // Row 2 of 3 of stone
-                'images/stone-block.png',   // Row 3 of 3 of stone
-                'images/grass-block.png',   // Row 1 of 2 of grass
-                'images/grass-block.png'    // Row 2 of 2 of grass
-            ],
-            numRows = 6,
-            numCols = 5,
-            row, col;
+        drawGameBoard();
+        renderEntities();
+    }
 
-        /* Loop through the number of rows and columns we've defined above
-         * and, using the rowImages array, draw the correct image for that
-         * portion of the "grid"
-         */
-        for (row = 0; row < numRows; row++) {
-            for (col = 0; col < numCols; col++) {
-                /* The drawImage function of the canvas' context element
-                 * requires 3 parameters: the image to draw, the x coordinate
-                 * to start drawing and the y coordinate to start drawing.
-                 * We're using our Resources helpers to refer to our images
-                 * so that we get the benefits of caching these images, since
-                 * we're using them over and over.
-                 */
-                ctx.drawImage(Resources.get(rowImages[row]), col * 101, row * 83);
+    function drawGameBoard() {
+        /* This array holds the relative URL to the image used
+        * for that particular row of the game level.
+        */
+        ctx.fillStyle = "salmon";
+        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
+        var rowImages = [];
+        // the first row is of water
+        rowImages.push('images/water-block.png');
+        // the number of stone rows needed is the total rows for the game board, minus 1 row of water + 2 rows of grass
+        var numStoneRows =  gb.numRows - 3;
+        for (var i = 1; i <= numStoneRows; i++) {
+            rowImages.push('images/stone-block.png');
+        }
+        // the bottom two rows are grass
+        rowImages.push('images/grass-block.png');
+        rowImages.push('images/grass-block.png');
+        // draw the game board
+        for (var row = 1; row <= gb.numRows; row++) {
+            for (var col = 1; col <= gb.numCols; col++) {
+                // drawImage params: img,sourceX,sourceY,sourceWidth,sourceHeight,x,y,width,height
+                ctx.drawImage(
+                    Resources.get(rowImages[row - 1]), // note: rowImage array index is zero based
+                    0,
+                    40, // vertical source clipping offset for transparent area in alpha
+                    Resources.get(rowImages[row - 1]).width,
+                    Resources.get(rowImages[row - 1]).height - 40,
+                    (col * gb.tileWidth) - gb.tileWidth, // horizontal location to draw
+                    (row * gb.tileHeight) - gb.tileHeight - gb.tileVOverlap, // vertical location to draw
+                    gb.tileWidth,
+                    gb.tileHeight + gb.tileVOverlap
+                );
+               // drawBoardTileRectangle(col, row); // for debug of drawing of game board tiles
             }
         }
 
+    }
 
-        renderEntities();
+    function drawBoardTileRectangle (colNum, rowNum) {
+        // debug rectangles showing tile shapes
+        ctx.rect(
+                (colNum * gb.tileWidth) - gb.tileWidth, // horizontal location to draw
+                (rowNum * gb.tileHeight) - gb.tileHeight, // vertical location to draw
+                gb.tileWidth,
+                gb.tileHeight
+        );
+        ctx.stroke();
     }
 
     /* This function is called by the render function and is called on each game
@@ -172,7 +220,11 @@ var Engine = (function(global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png'
+        'images/char-boy.png',
+        'images/char-pink-girl.png',
+        'images/char-princess-girl.png',
+        'images/Star.png',
+        'images/Heart.png'
     ]);
     Resources.onReady(init);
 
@@ -181,4 +233,5 @@ var Engine = (function(global) {
      * from within their app.js files.
      */
     global.ctx = ctx;
-})(this);
+    global.gb = gb;
+}(this));
