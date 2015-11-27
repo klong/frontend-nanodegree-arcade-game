@@ -26,20 +26,21 @@ var Engine = (function (global) {
         ctx = canvas.getContext('2d'),
         lastTime,
         gb = {
-            boardStartX: 0,
-            boardStartY: 0,
-            numCols: 18, // number of game board horizontal tiles
+            // NOTE: moving the game board origin on canvas area not workinhg, so keep at zero :TODO
+            boardStartX: 0, // set at 0
+            boardStartY: 0, // set at 0
+            numCols: 7, // number of game board horizontal tiles
             numRows: 12, // number of game board vertical tiles
-            tileWidth: 40, // tile width
-            tileHeight: 45, // tile height
+            tileWidth: 60, // tile width
+            tileHeight: 60, // tile height
             // using 'get' to initialise object properties based on other properties of the object
             get tileBottomVisible () {
                 // the extra pixels visble for the 3D look on bottom row of tiles
-                return Math.floor(this.tileHeight / 2);
+                return Math.floor(this.tileHeight * 0.45);
             },
             get tileVOverlap () {
                 // the vertical tile overlap adjustment
-                return Math.floor(this.tileHeight / 5);
+                return Math.floor(this.tileHeight / 8.5);
             },
             get gameBoardWidth () {
                 // horizontal area of game board
@@ -47,16 +48,14 @@ var Engine = (function (global) {
             },
             get gameBoardHeight () {
                 // vertical area of game board
-                return this.numRows * this.tileHeight + this.tileBottomVisible;
+                return this.numRows * this.tileHeight;
             }
         };
 
-    // set size of the HTML canvas to the gameboard with a half-tile width margin
-    //canvas.width = gb.gameBoardWidth + gb.tileWidth;
-    //canvas.height = gb.gameBoardHeight + gb.tileHeight;
+    // set canvas size based on game board
 
-    canvas.width = gb.gameBoardWidth;
-    canvas.height = gb.gameBoardHeight;
+    canvas.width = gb.boardStartX + gb.gameBoardWidth;
+    canvas.height = gb.boardStartY + gb.gameBoardHeight + gb.tileBottomVisible;
 
     // append the HTML canvas to the index.html page
 
@@ -165,13 +164,13 @@ var Engine = (function (global) {
                     0,
                     40, // vertical source clipping offset for transparent area in alpha
                     Resources.get(rowImages[row - 1]).width,
-                    Resources.get(rowImages[row - 1]).height - 40,
-                    (col * gb.tileWidth) - gb.tileWidth, // horizontal location to draw
-                    (row * gb.tileHeight) - gb.tileHeight - gb.tileVOverlap, // vertical location to draw
+                    Resources.get(rowImages[row - 1]).height,
+                    gb.boardStartX + ((col * gb.tileWidth) - gb.tileWidth), // horizontal location to draw
+                    gb.boardStartY + ((row * gb.tileHeight) - gb.tileHeight - gb.tileVOverlap), // vertical location to draw
                     gb.tileWidth,
-                    gb.tileHeight + gb.tileVOverlap
+                    gb.tileHeight + gb.tileVOverlap + (gb.tileHeight - gb.tileVOverlap)
                 );
-               // drawBoardTileRectangle(col, row); // for debug of drawing of game board tiles
+                //drawBoardTileRectangle(col, row); // for debug of drawing of game board tiles
             }
         }
 
@@ -180,8 +179,8 @@ var Engine = (function (global) {
     function drawBoardTileRectangle (colNum, rowNum) {
         // debug rectangles showing tile shapes
         ctx.rect(
-                (colNum * gb.tileWidth) - gb.tileWidth, // horizontal location to draw
-                (rowNum * gb.tileHeight) - gb.tileHeight, // vertical location to draw
+                (colNum * gb.tileWidth) - gb.tileWidth + gb.boardStartX, // horizontal location to draw
+                (rowNum * gb.tileHeight) - gb.tileHeight + gb.boardStartY, // vertical location to draw
                 gb.tileWidth,
                 gb.tileHeight
         );

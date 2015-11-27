@@ -7,7 +7,7 @@ var Enemy = function (startX, startY) {
     this.x = startX;
     this.y = startY;
     // initialise enemy speed
-    this.speed = 100; // default: an enemy is static
+    this.speed = 100;
     // set the graphic for player
     this.sprite = 'images/enemy-bug.png';
     // define x and y pivot for 'center' of the graphics design
@@ -40,9 +40,9 @@ Enemy.prototype.collidingWithPlayer = function () {
 };
 
 Enemy.prototype.offGameBoard = function () {
-    if  (this.x > gb.gameBoardWidth) {
+    if  (this.x > gb.boardStartX + gb.gameBoardWidth) {
         // re-position the enemy horizontaly off left of game board
-        this.x = gb.boardStartX - (2 * gb.tileWidth);
+        this.x = gb.boardStartX - (4 * gb.tileWidth);
         this.randomSpeed(100, 200); // set a new random speed for enemy
     }
 };
@@ -64,8 +64,8 @@ Enemy.prototype.render = function() {
                     75,
                     Resources.get(this.sprite).width,
                     Resources.get(this.sprite).height - 75,
-                    this.x,
-                    this.y,
+                    this.x + gb.boardStartX,
+                    this.y + gb.boardStartY,
                     gb.tileWidth,
                     gb.tileHeight
      );
@@ -101,48 +101,52 @@ Player.prototype.render = function() {
                     60,
                     Resources.get(this.sprite).width,
                     Resources.get(this.sprite).height - 60,
-                    this.x,
-                    this.y,
+                    this.x + gb.boardStartX,
+                    this.y + gb.boardStartY,
                     gb.tileWidth,
                     gb.tileHeight
      );
 };
 
 Player.prototype.playerRestart = function() {
-    this.x = Math.floor(gb.numCols / 2) * gb.tileWidth;
-    // set player vertical start position to bottom row of game board
+    // set the x location to the 'middle' of the game board
+    this.x = gb.boardStartX + (Math.floor(gb.numCols / 2) * gb.tileWidth);
+
     if (this.sprite === "images/char-princess-girl.png") {
+         // set player vertical start position to bottom row of game board
          this.y = gb.boardStartY;
     }
     else
     {
-         this.y = (gb.numRows - 1) * gb.tileHeight;
+        // set the y location to bottom row of game board
+        this.y = gb.boardStartY + ((gb.numRows - 1) * gb.tileHeight);
     }
 };
 
 Player.prototype.checkInWater = function() {
-    if (this.y === 0) {
+    if (this.y === gb.boardStartY) {
         this.sprite = ('images/char-princess-girl.png');
     }
 };
 
 Player.prototype.handleInput = function(e) {
     if (e === 'left') {
-            if (this.x > 0) {
-                this.x -= gb.tileWidth;}
+            if (this.x > gb.boardStartX) {
+                this.x -= gb.tileWidth;
             }
+    }
     else if (e === 'right') {
-            if (this.x < ctx.canvas.width - gb.tileWidth) {
-                this.x += gb.tileWidth
+            if (this.x < gb.boardStartX + gb.gameBoardWidth - gb.tileWidth) {
+                this.x += gb.tileWidth;
             }
     }
     else if (e === 'up') {
-            if (this.y > 0) {
+            if (this.y > gb.boardStartY) {
                 this.y -= gb.tileHeight;
             }
     }
     else if (e === 'down') {
-            if (this.y < gb.gameBoardHeight - (2 * gb.tileHeight)) {
+            if (this.y < gb.boardStartY + gb.gameBoardHeight - gb.tileHeight) {
                 this.y += gb.tileHeight;
             }
             else
