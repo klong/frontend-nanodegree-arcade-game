@@ -2,18 +2,10 @@
  * This file provides the game loop functionality (update entities and render),
  * draws the initial game board on the screen, and then calls the update and
  * render methods on your player and enemy objects (defined in your app.js).
- *
- * A game engine works by drawing the entire game screen over and over, kind of
- * like a flipbook you may have created as a kid. When your player moves across
- * the screen, it may look like just that image/character is moving or being
- * drawn but that is not the case. What's really happening is the entire "scene"
- * is being drawn over and over, presenting the illusion of animation.
- *
  * This engine is available globally via the Engine variable and it also makes
  * the canvas' context (ctx) object globally available to make writing app.js
  * a little simpler to work with.
  */
-
 var Engine = (function (global) {
     'use strict';
     /* Predefine the variables we'll be using within this scope,
@@ -26,16 +18,16 @@ var Engine = (function (global) {
         ctx = canvas.getContext('2d'),
         lastTime,
         gb = {
-            // NOTE: moving the game board origin on canvas area not workinhg, so keep at zero :TODO
+            // TODO: moving the game board origin within the canvas area not workinhg, so kept at zero
             boardStartX: 0, // set at 0
             boardStartY: 0, // set at 0
-            numCols: 7, // number of game board horizontal tiles
-            numRows: 12, // number of game board vertical tiles
-            tileWidth: 60, // tile width
-            tileHeight: 60, // tile height
+            numCols: 5, // number of game board horizontal tiles
+            numRows: 6, // number of game board vertical tiles
+            tileWidth: 70, // tile width
+            tileHeight: 75, // tile height
             // using 'get' to initialise object properties based on other properties of the object
             get tileBottomVisible () {
-                // the extra pixels visble for the 3D look on bottom row of tiles
+                // the extra pixels visble for the 3D look on bottom row of tile
                 return Math.floor(this.tileHeight * 0.45);
             },
             get tileVOverlap () {
@@ -49,13 +41,16 @@ var Engine = (function (global) {
             get gameBoardHeight () {
                 // vertical area of game board
                 return this.numRows * this.tileHeight;
+            },
+            get extraHeightforIndicators () {
+                return this.tileHeight / 2;
             }
         };
 
     // set canvas size based on game board
 
     canvas.width = gb.boardStartX + gb.gameBoardWidth;
-    canvas.height = gb.boardStartY + gb.gameBoardHeight + gb.tileBottomVisible;
+    canvas.height = gb.boardStartY + gb.gameBoardHeight + gb.tileBottomVisible + gb.extraHeightforIndicators;
 
     // append the HTML canvas to the index.html page
 
@@ -71,6 +66,7 @@ var Engine = (function (global) {
          * would be the same for everyone (regardless of how fast their
          * computer is) - hurray time!
          */
+        'use strict';
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
         /* Call our update/render functions, pass along the time delta to
@@ -93,6 +89,7 @@ var Engine = (function (global) {
      * game loop.
      */
     function init() {
+        'use strict';
         reset();
         lastTime = Date.now();
         main();
@@ -108,6 +105,7 @@ var Engine = (function (global) {
      * on the entities themselves within your app.js file).
      */
     function update(dt) {
+        'use strict';
         updateEntities(dt);
         // checkCollisions();
     }
@@ -120,10 +118,20 @@ var Engine = (function (global) {
      * render methods.
      */
     function updateEntities(dt) {
+        'use strict';
+        // update enemy objects
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
         });
-        player.update();
+        allTreasures.forEach(function(treasure) {
+            treasure.update(dt);
+        });
+        // update player object
+        player.update(dt);
+        // update indicators objects
+        allIndicators.forEach(function(indicator) {
+            indicator.update(dt);
+        });
     }
 
     /* This function initially draws the "game level", it will then call
@@ -133,6 +141,7 @@ var Engine = (function (global) {
      * they are just drawing the entire screen over and over.
      */
     function render() {
+        'use strict';
         drawGameBoard();
         renderEntities();
     }
@@ -141,6 +150,7 @@ var Engine = (function (global) {
         /* This array holds the relative URL to the image used
         * for that particular row of the game level.
         */
+        'use strict';
         ctx.fillStyle = "salmon";
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -170,14 +180,15 @@ var Engine = (function (global) {
                     gb.tileWidth,
                     gb.tileHeight + gb.tileVOverlap + (gb.tileHeight - gb.tileVOverlap)
                 );
-                //drawBoardTileRectangle(col, row); // for debug of drawing of game board tiles
+                //drawBoardTileRectangle(col, row); // debug drawing of game board tiles
             }
         }
 
     }
 
     function drawBoardTileRectangle (colNum, rowNum) {
-        // debug rectangles showing tile shapes
+        'use strict';
+        // debug rectangles showing game board tiles
         ctx.rect(
                 (colNum * gb.tileWidth) - gb.tileWidth + gb.boardStartX, // horizontal location to draw
                 (rowNum * gb.tileHeight) - gb.tileHeight + gb.boardStartY, // vertical location to draw
@@ -192,13 +203,19 @@ var Engine = (function (global) {
      * on your enemy and player entities within app.js
      */
     function renderEntities() {
-        /* Loop through all of the objects within the allEnemies array and call
+        /* Loop through all of the objects and call
          * the render function you have defined.
          */
+        'use strict';
+        allIndicators.forEach(function(indicator) {
+            indicator.render();
+        });
         allEnemies.forEach(function(enemy) {
             enemy.render();
         });
-
+        allTreasures.forEach(function(treasure) {
+            treasure.render();
+        });
         player.render();
     }
 
@@ -219,11 +236,14 @@ var Engine = (function (global) {
         'images/water-block.png',
         'images/grass-block.png',
         'images/enemy-bug.png',
-        'images/char-boy.png',
         'images/char-pink-girl.png',
         'images/char-princess-girl.png',
-        'images/Star.png',
-        'images/Heart.png'
+        'images/Gem Blue.png',
+        'images/Gem Green.png',
+        'images/Gem Orange.png',
+        'images/Rock.png',
+        'images/Heart.png',
+        'images/Star.png'
     ]);
     Resources.onReady(init);
 
