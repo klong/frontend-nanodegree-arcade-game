@@ -18,13 +18,13 @@ var Engine = (function (global) {
         ctx = canvas.getContext('2d'),
         lastTime,
         gb = {
-            // TODO: moving the game board origin within the canvas area not workinhg, so kept at zero
+            // TODO: moving the game board origin within the canvas area not workinhg, so it is kept at zero
             boardStartX: 0, // set at 0
             boardStartY: 0, // set at 0
-            numCols: 5, // number of game board horizontal tiles
-            numRows: 6, // number of game board vertical tiles
-            tileWidth: 70, // tile width
-            tileHeight: 75, // tile height
+            numCols: 15, // number of game board horizontal tiles
+            numRows: 10, // number of game board vertical tiles
+            tileWidth: 50, // tile width
+            tileHeight: 55, // tile height
             // using 'get' to initialise object properties based on other properties of the object
             get tileBottomVisible () {
                 // the extra pixels visble for the 3D look on bottom row of tile

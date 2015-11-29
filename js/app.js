@@ -1,9 +1,9 @@
 /**
  * @file app.js
  * @author Karl Longman GitHub: klong
- * @decription Udacity Nanodegree Project 3 - HTML Canvas Arcade Game, app javascript uses engine.js & resources.js
+ * @decription Udacity Nanodegree Project 3 - HTML Canvas Arcade Game, all files in js directory are needed for game to function
  * see README.md file for more information about the game.
- * {@link http://klong.github.io/ Game} - link to GitHub hosted game page
+ * {@link http://klong.github.io// Game} - link to GitHub hosted game page
 */
 
 /**
@@ -15,13 +15,13 @@
  * @param {string} sprite - the path to image file used for enemey
  * @param {num} xPivot - pixel value for horizontal pivot location
  * @param {num} yPivot - pixel value for vertical pivot location
- * @param {num} energyLevel - a normalised value to represent an enemies ernergy level
+ * @param {num} energyLevel - a normalised value to represent enemy 'energy level'
  */
 var Enemy = function (startX, startY) {
     'use strict';
-    // The image/sprite for our enemies, this uses
-    // a helper we've provided to easily load images
+    // The image/sprite for our enemies, this uses a helper we've provided to easily load images
     // set x, y locations for coordinate sytem of game board
+    // TODO: changing the coordinate system for the game boad is not currently working - set both to zero
     this.x = startX;
     this.y = startY;
     // initialise enemy speed
@@ -29,11 +29,12 @@ var Enemy = function (startX, startY) {
     // set the graphic for player
     this.sprite = 'images/enemy-bug.png';
     // define x and y pivot for 'center' of the graphics design
+    // TODO: the pivot points are not referenced or used in any  of the game code yet
     this.xPivot = 50;
     this.yPivot = 90;
     // set enemy energy level
-    // note: energyLevel will be a floating point value between 0 and 1
-    this.energyLevel = 1.00;
+    //energyLevel will be a floating point value between 0 and 1
+    this.energyLevel = 1;
 };
 
 // Update the enemy's position, required method for game
@@ -42,8 +43,11 @@ Enemy.prototype.update = function (dt) {
     'use strict';
     // NOTE: the 'dt' parameter ensures the game runs at same speed for all computers.
     this.move(dt);
-    this.offGameBoard(); // check if enemy is off game board
+    this.offGameBoard(); // check if enemy is off the tiles of the game board
+    // TODO: not all of game functionality rewuired for enemy <-> player collisions is complete
     this.collidingWithPlayer();
+    // TODO: not all of game functionality rewuired for enemy <-> player collisions is complete
+    this.collidingWithTreasure();
 };
 
 Enemy.prototype.move = function (dt) {
@@ -57,15 +61,31 @@ Enemy.prototype.collidingWithPlayer = function () {
         player.y <= this.y + 20 &&
         this.y <= player.y + 20)
     {
-        // when collision with player is true
+        // when colliding with player, 'bump' them
         this.bump(player);
     }
 };
 
+Enemy.prototype.collidingWithTreasure = function () {
+    'use strict';
+    for (i = 0; i < allTreasures.length; i++) {
+        if  (allTreasures[i].x <= this.x + 50 &&
+            this.x <= allTreasures[i].x + 20 &&
+            allTreasures[i].y <= this.y + 20 &&
+            this.y <= allTreasures[i].y + 20)
+        {
+            // when enemy is colliding with treasure object i in allTresures array
+            // the enemies 'this.bump' will call 'bumped' method on the treasure object
+            this.bump[allTreasures[i]];
+        }
+    }
+};
+
 Enemy.prototype.bump = function (targetObj) {
+    // call the hit objects 'bumped' methood
     targetObj.bumped();
-    this.energyLevel -= 0.00005;
-    this.speed = -10;
+    // bumping something depletes some energy
+    this.energyLevel -= 0.0005;
 };
 
 Enemy.prototype.offGameBoard = function () {
@@ -74,26 +94,28 @@ Enemy.prototype.offGameBoard = function () {
         this.speed < 0 && this.x < gb.boardStartX - gb.tileWidth)
         // re-position the enemy horizontaly off left of game board
         this.x = gb.boardStartX - (2 * gb.tileWidth);
-        this.randomSpeed(100, 200); // set a new positive random speed for enemy
+        // set a new positive random speed for enemy
+        this.randomSpeed(100, 200);
 };
 
 
 Enemy.prototype.randomSpeed = function(minSpeed, maxSpeed) {
     'use strict';
     // maxSpeed is multiplied by normalised factor of enemies energyLevel
+    // TODO: the updating of normalised energyLevel does not have the required game rules yet
     this.speed = Math.floor((Math.random() * (maxSpeed * this.energyLevel)) + minSpeed);
 };
 
 // Draw the enemy on the screen, required method for game
 Enemy.prototype.render = function() {
     'use strict';
-     // drawImage params: img,sourceX,sourceY,sourceWidth,sourceHeight,x,y,width,height
+     // NOTE: drawImage params: img,sourceX,sourceY,sourceWidth,sourceHeight,x,y,width,height
      ctx.drawImage(
                     Resources.get(this.sprite),
                     0,
-                    75,
+                    75, // this offset in pixels is to ignore the alpha areas in the bug source image files
                     Resources.get(this.sprite).width,
-                    Resources.get(this.sprite).height - 75,
+                    Resources.get(this.sprite).height - 75, // the same pixel offset is used here for the sourceHeight
                     this.x + gb.boardStartX,
                     this.y + gb.boardStartY,
                     gb.tileWidth,
@@ -104,7 +126,7 @@ Enemy.prototype.render = function() {
 /**
  * Creates a new PLAYER object.
  * @class Player
- * @description creates a player of the game
+ * @description creates a player of the game, player object is stored in 'Player' variable
  * @param {number} StartXPos - the horizontal start x location on canvas
  * @param {number} StartYPos - the vertical start y location on canvas
  */
@@ -119,44 +141,47 @@ var Player = function(StartXPos, StartYPos) {
     // define x and y pivot for 'center' of the graphics design
     this.pivotX = 50;
     this.pivotY = 130;
-    this.energyLevel = 1.00;
+    this.energyLevel = 1;
 };
 
 Player.prototype.update = function(dt) {
     'use strict';
      // NOTE: the 'dt' parameter ensures the game runs at same speed for all computers.
-    this.depleteEnergy(); // by default player is allways losing energy
+    this.modifyEnergy(-0.0001); // by default player is allways losing energy
     this.checkInWater();
 };
 
-Player.prototype.depleteEnergy = function() {
+Player.prototype.modifyEnergy = function(amount) {
     if (this.energyLevel < 0) {
         this.playerRestart();
     } else {
-        this.energyLevel -= 0.0001;
+        this.energyLevel += amount;
     }
 };
 
 Player.prototype.bump = function (targetObj) {
     'use strict';
-    targetObj.bumped();
+    targetObj.bumped
+    this.modifyEnergy(-0.0002);
 };
 
-Player.prototype.bumped = function () {
+Player.prototype.bumped = function (dt) {
     'use strict';
-    this.energyLevel -= 0.005;
-
+    /* TODO: this amount of energy causes the player to be reset straight away
+    as per project submission guidelines but this will be more like
+    a damage effect on a player in the finished game concept */
+    this.modifyEnergy(-1);
 };
 
 Player.prototype.render = function() {
     'use strict';
-    // drawImage params: img,sourceX,sourceY,sourceWidth,sourceHeight,x,y,width,height
+    // NOTE: drawImage params: img,sourceX,sourceY,sourceWidth,sourceHeight,x,y,width,height
      ctx.drawImage(
                     Resources.get(this.sprite),
                     0,
-                    60,
+                    60, // this offset in pixels is to ignore the alpha areas in the source player image files
                     Resources.get(this.sprite).width,
-                    Resources.get(this.sprite).height - 60,
+                    Resources.get(this.sprite).height - 60, // the same pixel offset is used here for the sourceHeight
                     this.x + gb.boardStartX,
                     this.y + gb.boardStartY,
                     gb.tileWidth,
@@ -171,16 +196,17 @@ Player.prototype.playerRestart = function() {
     this.x = gb.boardStartX + (Math.floor(gb.numCols / 2) * gb.tileWidth);
 
     if (this.sprite === "images/char-princess-girl.png") {
-         // set player vertical start position to bottom row of game board
+         // set player vertical start position to the bottom row of game board
          this.y = gb.boardStartY;
     } else {
-        // set the y location to bottom row of game board
+        // set the y location to bottom row of the game board
         this.y = gb.boardStartY + ((gb.numRows - 1) * gb.tileHeight);
     }
 };
 
 Player.prototype.checkInWater = function() {
     'use strict';
+    // row of water is top row on game board
     if (this.y === gb.boardStartY) {
         this.sprite = ('images/char-princess-girl.png');
     }
@@ -207,6 +233,9 @@ Player.prototype.handleInput = function(e) {
             if (this.y < gb.boardStartY + gb.gameBoardHeight - gb.tileHeight) {
                 this.y += gb.tileHeight;
             } else {
+                // TODO: currently if the player goes off bottom row of game board player becomes the pink-girl
+                // this is just ahack to allow the player to change back from being a princess character.
+                // the proper game concept and rules have not been completed yet
                 this.sprite = ('images/char-pink-girl.png');
             }
     }
@@ -214,34 +243,71 @@ Player.prototype.handleInput = function(e) {
 
 var Treasure = function (startXPos, startYPos, colourName) {
     'use strict';
-    // set x and y locations of coordinate sytem of game board
-    // if a value not given, use a default off-canvas location
     this.x = startXPos;
     this.y = startYPos;
     this.gemSprite = 'images/Gem ' + colourName + '.png';
-    // set the graphic for rock
+    // set the sprite image file path for the overlay 'rock', on top of the gem/treasure
+    // TODO: other kinds of treasure e.g key, heart etc for use in the game not implemented yet
     this.rockSprite = 'images/Rock.png';
+    // default is maximum energy level
+    this.energyLevel = 1;
+    this.cycle = 1;
 };
 
-Treasure.prototype.update = function (dt) {
-
+Treasure.prototype.update = function () {
+    // the magic rock is allways slowly renewing its energy level
+    this.modifyEnergy(-0.001);
+    this.collidingWithPlayer();
 };
+
+Treasure.prototype.collidingWithPlayer = function () {
+    'use strict';
+    if  (player.x <= this.x + 50 &&
+        this.x <= player.x + 20 &&
+        player.y <= this.y + 20 &&
+        this.y <= player.y + 20)
+    {
+        // when collision with player is true
+        this.beingDug();
+    }
+};
+
+Treasure.prototype.modifyEnergy = function (amount) {
+    // amount can either be a positive or negative value
+    if (this.energyLevel > 0 && this.energyLevel < 1) {
+        this.energyLevel += amount;
+    } else if (this.energyLevel === 0) {
+
+    }
+};
+
+Treasure.prototype.bumped = function () {
+    // TODO: decide on effect fon Treasure object if bumped
+    //this.modifyEnergy(-0.0001);
+};
+
+Treasure.prototype.beingDug = function () {
+    // TODO: the rock on top of the treasure should be moved/drawn lower to reveal the treasure for  player pick-up
+    //this.modifyEnergy(-0.01);
+};
+
 
 Treasure.prototype.render = function () {
     'use strict';
-    // drawImage params: img,sourceX,sourceY,sourceWidth,sourceHeight,x,y,width,height
+    // NOTE: drawImage params: img,sourceX,sourceY,sourceWidth,sourceHeight,x,y,width,height
     // draw the Gem on game board
     var gemImg = Resources.get(this.gemSprite),
         gemWidth = gb.tileWidth / 2,
         gemHeight = gb.tileHeight / 2,
-        rockImg = Resources.get(this.rockSprite);
+        rockImg = Resources.get(this.rockSprite),
+        rockOffsetImg = this.energyLevel; //TODO: the rock should be sinking & rising based on its energyLevel
 
     ctx.drawImage(
                     gemImg,
                     0,
-                    60,
+                    60, // this offset in pixels is to ignore the alpha areas in the gem source image files
                     gemImg.width,
-                    gemImg.height - 60,
+                    gemImg.height - 60, // the same pixel offset is used here for the sourceHeight
                     this.x + gb.boardStartX + tileCenterXOffset() - (gemWidth / 2),
                     this.y + gb.boardStartY + tileCenterYOffset() - (gemHeight / 2),
                     // gem sprite is scalled down to be hidden by rock sprite
@@ -249,16 +315,16 @@ Treasure.prototype.render = function () {
                     gemHeight
      );
     // draw the rock over the gem on game board
-     ctx.drawImage(
+    ctx.drawImage(
                     rockImg,
                     0,
-                    60,
+                    60, // this offset in pixels is to ignore the alpha areas in the rock source image files
                     rockImg.width,
-                    rockImg.height - 60,
+                    rockImg.height - 60, // the same pixel offset is used here for the sourceHeight
                     this.x + gb.boardStartX,
                     this.y + gb.boardStartY,
-                    gb.tileWidth,
-                    gb.tileHeight
+                    gb.tileWidth * rockOffsetImg,
+                    gb.tileHeight * rockOffsetImg
      );
 };
 
@@ -266,9 +332,9 @@ Treasure.prototype.render = function () {
 /**
  * @class Indicator
  * @description creates an indicator that associates an objects property value with one or more UI indicator object
- * @param {obj} obj - the object to use the indicator object
- * @param {string} objProp - the name of the object property of the obj to be indicated
- * @param {array} UIobjs - a UI object that will be upated based on the value of the object property
+ * @param {obj} objRef - the object to use the indicator object
+ * @param {string} objRefProp - the name of the object property of the obj to be indicated
+ * @param {array} UIobjsArray - a UI object that will be upated based on the value of the object property
  */
 var Indicator = function (obj, objProp, UIobjs) {
     this.objRef = obj;
@@ -294,15 +360,18 @@ Indicator.prototype.render = function () {
 
 /**
  * @class gameUIdisplay
- * @description creates a UI object that draws a value as fillText on the canavas
+ * @description creates a UI object to be drawn on the canavas
  */
 var gameUIdisplay = function (startX, startY, width, height, valueConvertFunction, renderFunction) {
     'use strict';
-    this.displayText = "pop";
-    this.x = startX ; // Start X postion on canvas
-    this.y = startY ; // Start Y postion on canvas
+    // default to empty string to set variable type - its value will be set by the valueConvertFunction
+    this.displayText = '';
+    // initial X and Y postions on canvas
+    this.x = startX ;
+    this.y = startY ;
     this.width = width;
     this.height = height;
+    // the last two arguments will be passed as anonymous functions
     this.valueConvertFunction = valueConvertFunction;
     this.renderFunction = renderFunction;
 };
@@ -315,12 +384,10 @@ gameUIdisplay.prototype.update = function (dt, value) {
 gameUIdisplay.prototype.render = function () {
     'use strict';
     this.renderFunction();
-
-
 };
 
 // **************************
-// Helper functions for app
+// helper functions for app
 // **************************
 /**
  * @function isOdd
@@ -351,12 +418,20 @@ function randomSpeed (minSpeed, maxSpeed) {
     'use strict';
     return Math.floor((Math.random() * maxSpeed) + minSpeed);
 }
-
+/**
+* @function tileCenterXOffset
+* @description helper function returns the center x location of the game board tile
+* @returns {num} x-pixel amount
+*/
 function tileCenterXOffset () {
     'use strict';
     return gb.tileWidth / 2;
 }
-
+/**
+* @function tileCenterYOffset
+* @description helper function returns the center y location of the game board tile
+* @returns {num} y-pixel amount
+*/
 function tileCenterYOffset () {
     'use strict';
     return gb.tileHeight / 2;
@@ -458,7 +533,10 @@ playerEnergyDisplay.push(
             function (value) {
                 return Math.floor(value * 1000);
             },
-            // anonymous function to render UI object
+            // an anonymous function which will be used to draw the UI object
+            // when an Indicator object request it
+            // TODO: drawing function should not by a side effect modify the 'current
+            // context values' unless purpose of function, needs thinking about
             function () {
                 var currentFillStyle = ctx.fillStyle;
                 ctx.fillStyle = "wheat";
@@ -475,7 +553,7 @@ playerEnergyDisplay.push(
                             this.x + (this.width / 2),
                             this.y + (this.height / 2)
                             );
-                // reset canvas context fillStyle to what it was before drawing the NeonDisplay
+                // reset canvas context fillStyle to what it was before drawing
                 ctx.fillStyle = currentFillStyle;
             }
     )
@@ -485,11 +563,8 @@ playerEnergyDisplay.push(
 // place INDICATOR OBJECTS in an array called allIndicators
 var allIndicators = [];
 // add an indicator object for the player 'energy level' onto allIndicators
-allIndicators.push(new Indicator(player,
-                                'energyLevel',
-                                playerEnergyDisplay // an array of UI elements defined above for the indicator to update
-                                )
-);
+// playerEnergyDisplay is an array of UI elements defined above for the indicator to update
+allIndicators.push(new Indicator(player,'energyLevel', playerEnergyDisplay));
 
 // This listens for key presses and sends the keys to your
 // Player.handleInput() method. You don't need to modify this.
@@ -503,17 +578,3 @@ document.addEventListener('keyup', function(e) {
     };
     player.handleInput(allowedKeys[e.keyCode]);
 });
-
-/*
-
-$('#pageGameReseter').click(function() {
-    player.playerRestart();
-});
-
-
-$('#pageGame').click(function() {
-    location.reload();
-});
-
-*/
-
