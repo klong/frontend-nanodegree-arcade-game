@@ -12,7 +12,7 @@ Study the relevant Udacity courses for project:
 
 ### The planned game
 #####_Please note: the submitted project (November 30, 2015) is an incomplete 'game'._
-#####You can see the submitted project runnning on [GitHub Pages](http://http://klong.github.io/frontend-nanodegree-arcade-game/)
+#####You can see the submitted project runnning on [GitHub Pages](http://klong.github.io/frontend-nanodegree-arcade-game/)
 The project will be further customised and become a playable game.
 
 #####The final game will have ;
