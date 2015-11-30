@@ -67,21 +67,21 @@ Enemy.prototype.collidingWithPlayer = function () {
 
 Enemy.prototype.collidingWithTreasure = function () {
     'use strict';
-    for (var i = 0; i < allTreasures.length; i++) {
+    for (var i = 0; i < (allTreasures.length); i++) {
         if (allTreasures[i].x <= this.x + 50 &&
             this.x <= allTreasures[i].x + 20 &&
             allTreasures[i].y <= this.y + 20 &&
             this.y <= allTreasures[i].y + 20) {
-            // when enemy is colliding with treasure object i in allTresures array
             // the enemies 'this.bump' will call 'bumped' method on the treasure object
-            this.bump([allTreasures[i]]);
+            var objToBump = allTreasures[i];
+            this.bump(objToBump);
         }
     }
 };
 
-Enemy.prototype.bump = function (targetObj) {
-    // call the hit objects 'bumped' methood
-    targetObj.bumped();
+Enemy.prototype.bump = function (bumpedObj) {
+    // call the hit objects 'bumped' method
+    bumpedObj.bumped();
     // bumping something depletes some energy
     this.energyLevel -= 0.0005;
 };
