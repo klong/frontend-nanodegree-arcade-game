@@ -76,7 +76,7 @@ Enemy.prototype.collidingWithTreasure = function () {
         {
             // when enemy is colliding with treasure object i in allTresures array
             // the enemies 'this.bump' will call 'bumped' method on the treasure object
-            this.bump[allTreasures[i]];
+            this.bump([allTreasures[i]]);
         }
     }
 };
