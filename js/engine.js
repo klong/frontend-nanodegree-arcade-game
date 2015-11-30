@@ -66,7 +66,6 @@ var Engine = (function (global) {
          * would be the same for everyone (regardless of how fast their
          * computer is) - hurray time!
          */
-        'use strict';
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
         /* Call our update/render functions, pass along the time delta to
@@ -89,7 +88,6 @@ var Engine = (function (global) {
      * game loop.
      */
     function init() {
-        'use strict';
         reset();
         lastTime = Date.now();
         main();
@@ -105,7 +103,6 @@ var Engine = (function (global) {
      * on the entities themselves within your app.js file).
      */
     function update(dt) {
-        'use strict';
         updateEntities(dt);
         // checkCollisions();
     }
@@ -118,7 +115,6 @@ var Engine = (function (global) {
      * render methods.
      */
     function updateEntities(dt) {
-        'use strict';
         // update enemy objects
         allEnemies.forEach(function(enemy) {
             enemy.update(dt);
@@ -141,7 +137,6 @@ var Engine = (function (global) {
      * they are just drawing the entire screen over and over.
      */
     function render() {
-        'use strict';
         drawGameBoard();
         renderEntities();
     }
@@ -150,7 +145,6 @@ var Engine = (function (global) {
         /* This array holds the relative URL to the image used
         * for that particular row of the game level.
         */
-        'use strict';
         ctx.fillStyle = "salmon";
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -187,7 +181,6 @@ var Engine = (function (global) {
     }
 
     function drawBoardTileRectangle (colNum, rowNum) {
-        'use strict';
         // debug rectangles showing game board tiles
         ctx.rect(
                 (colNum * gb.tileWidth) - gb.tileWidth + gb.boardStartX, // horizontal location to draw
@@ -206,7 +199,6 @@ var Engine = (function (global) {
         /* Loop through all of the objects and call
          * the render function you have defined.
          */
-        'use strict';
         allIndicators.forEach(function(indicator) {
             indicator.render();
         });

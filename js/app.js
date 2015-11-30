@@ -68,7 +68,7 @@ Enemy.prototype.collidingWithPlayer = function () {
 
 Enemy.prototype.collidingWithTreasure = function () {
     'use strict';
-    for (i = 0; i < allTreasures.length; i++) {
+    for (var i = 0; i < allTreasures.length; i++) {
         if  (allTreasures[i].x <= this.x + 50 &&
             this.x <= allTreasures[i].x + 20 &&
             allTreasures[i].y <= this.y + 20 &&
@@ -161,7 +161,7 @@ Player.prototype.modifyEnergy = function(amount) {
 
 Player.prototype.bump = function (targetObj) {
     'use strict';
-    targetObj.bumped
+    targetObj.bumped();
     this.modifyEnergy(-0.0002);
 };
 
@@ -346,16 +346,16 @@ var Indicator = function (obj, objProp, UIobjs) {
 Indicator.prototype.update = function (dt) {
     'use strict';
     var value = this.objRef[this.objRefProp];
-    for (i = 0; i < this.UIobjsArray.length; i++) {
+    for (var i = 0; i < this.UIobjsArray.length; i++) {
         this.UIobjsArray[i].update(dt, value);
-    };
+    }
 };
 
 Indicator.prototype.render = function () {
     'use strict';
-    for (i = 0; i < this.UIobjsArray.length; i++) {
+    for (var i = 0; i < this.UIobjsArray.length; i++) {
         this.UIobjsArray[i].render();
-    };
+    }
 };
 
 /**
@@ -406,7 +406,7 @@ function isOdd (num) {
 */
 function negative (num) {
     'use strict';
-    -num;
+    return -(Math.abs(num));
 }
 /**
 * @function randomSpeed
@@ -445,7 +445,7 @@ function tileCenterYOffset () {
 var allEnemies = [];
 // required enemies - one for each rock row, that is the numRows - 3
 // append the required new enemies onto the 'allEnimes' array
-for (i = 1; i <= (gb.numRows - 3); i++) {
+for (var i = 1; i <= (gb.numRows - 3); i++) {
     allEnemies.push(
         new Enemy(
             // start the enemy at random offset column off the canvas edge
@@ -454,7 +454,7 @@ for (i = 1; i <= (gb.numRows - 3); i++) {
             i * gb.tileHeight
         )
     );
-};
+}
 
 // Place PLAYER OBJECT in a variable called player
 var player = new Player(0, 0);
@@ -466,7 +466,7 @@ var treasureColourList = ['Blue','Green','Orange'];
 var allTreasures = [];
 // put a treasure on all stone rows of the game board
 // i.e numRows of game board minus top row of water and bottom two rows of grass
-for (i = 1; i <= (gb.numRows - 3); i++) {
+for (var i = 1; i <= (gb.numRows - 3); i++) {
     allTreasures.push(
         new Treasure(
             // the start x for treasure on a random column of game board
@@ -477,7 +477,7 @@ for (i = 1; i <= (gb.numRows - 3); i++) {
             treasureColourList[Math.floor(Math.random() * treasureColourList.length)]
         )
     );
-};
+}
 
 // create an array with a UI element for players energy level indicator
 var playerEnergyDisplay = [];
