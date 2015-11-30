@@ -61,7 +61,7 @@ Enemy.prototype.collidingWithPlayer = function () {
         player.y <= this.y + 20 &&
         this.y <= player.y + 20) {
         // when colliding with player, 'bump' them
-        this.bump(player);
+        this.bump(player, -1);
     }
 };
 
@@ -74,14 +74,14 @@ Enemy.prototype.collidingWithTreasure = function () {
             this.y <= allTreasures[i].y + 20) {
             // the enemies 'this.bump' will call 'bumped' method on the treasure object
             var objToBump = allTreasures[i];
-            this.bump(objToBump);
+            this.bump(objToBump, 0.003);
         }
     }
 };
 
-Enemy.prototype.bump = function (bumpedObj) {
+Enemy.prototype.bump = function (bumpedObj, energyForce) {
     // call the hit objects 'bumped' method
-    bumpedObj.bumped();
+    bumpedObj.bumped(energyForce);
     // bumping something depletes some energy
     this.energyLevel -= 0.0005;
 };
@@ -157,18 +157,18 @@ Player.prototype.modifyEnergy = function (amount) {
     }
 };
 
-Player.prototype.bump = function (targetObj) {
+Player.prototype.bump = function (targetObj, energyForce) {
     'use strict';
-    targetObj.bumped();
+    targetObj.bumped(energyForce);
     this.modifyEnergy(-0.0002);
 };
 
-Player.prototype.bumped = function (dt) {
+Player.prototype.bumped = function (energyForce) {
     'use strict';
     /* TODO: this amount of energy causes the player to be reset straight away
     as per project submission guidelines but this will be more like
     a damage effect on a player in the finished game concept */
-    this.modifyEnergy(-1);
+    this.modifyEnergy(energyForce);
 };
 
 Player.prototype.render = function () {
@@ -250,9 +250,9 @@ var Treasure = function (startXPos, startYPos, colourName) {
 };
 
 Treasure.prototype.update = function () {
+    this.collidingWithPlayer();
     // the magic rock is allways slowly renewing its energy level
     this.modifyEnergy(-0.001);
-    this.collidingWithPlayer();
 };
 
 Treasure.prototype.collidingWithPlayer = function () {
@@ -262,7 +262,7 @@ Treasure.prototype.collidingWithPlayer = function () {
         player.y <= this.y + 20 &&
         this.y <= player.y + 20) {
         // when collision with player is true
-        this.beingDug();
+        this.beingDug(-0.005);
     }
 };
 
@@ -275,14 +275,16 @@ Treasure.prototype.modifyEnergy = function (amount) {
     }
 };
 
-Treasure.prototype.bumped = function () {
+Treasure.prototype.bumped = function (energyForce) {
     // TODO: decide on effect fon Treasure object if bumped
-    //this.modifyEnergy(-0.0001);
+    this.modifyEnergy(energyForce);
 };
 
-Treasure.prototype.beingDug = function () {
+Treasure.prototype.beingDug = function (digForce) {
     // TODO: the rock on top of the treasure should be moved/drawn lower to reveal the treasure for  player pick-up
-    //this.modifyEnergy(-0.01);
+    this.modifyEnergy(digForce);
+    player.bumped(-0.001);
+
 };
 
 
