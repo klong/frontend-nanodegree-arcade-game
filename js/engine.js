@@ -26,23 +26,23 @@ var Engine = (function (global) {
             tileWidth: 50, // tile width
             tileHeight: 55, // tile height
             // using 'get' to initialise object properties based on other properties of the object
-            get tileBottomVisible () {
+            get tileBottomVisible() {
                 // the extra pixels visble for the 3D look on bottom row of tile
                 return Math.floor(this.tileHeight * 0.45);
             },
-            get tileVOverlap () {
+            get tileVOverlap() {
                 // the vertical tile overlap adjustment
                 return Math.floor(this.tileHeight / 8.5);
             },
-            get gameBoardWidth () {
+            get gameBoardWidth() {
                 // horizontal area of game board
                 return this.numCols * this.tileWidth;
             },
-            get gameBoardHeight () {
+            get gameBoardHeight() {
                 // vertical area of game board
                 return this.numRows * this.tileHeight;
             },
-            get extraHeightforIndicators () {
+            get extraHeightforIndicators() {
                 return this.tileHeight / 2;
             }
         };
@@ -66,7 +66,6 @@ var Engine = (function (global) {
          * would be the same for everyone (regardless of how fast their
          * computer is) - hurray time!
          */
-        'use strict';
         var now = Date.now(),
             dt = (now - lastTime) / 1000.0;
         /* Call our update/render functions, pass along the time delta to
@@ -89,7 +88,6 @@ var Engine = (function (global) {
      * game loop.
      */
     function init() {
-        'use strict';
         reset();
         lastTime = Date.now();
         main();
@@ -105,7 +103,6 @@ var Engine = (function (global) {
      * on the entities themselves within your app.js file).
      */
     function update(dt) {
-        'use strict';
         updateEntities(dt);
         // checkCollisions();
     }
@@ -118,18 +115,17 @@ var Engine = (function (global) {
      * render methods.
      */
     function updateEntities(dt) {
-        'use strict';
         // update enemy objects
-        allEnemies.forEach(function(enemy) {
+        allEnemies.forEach(function (enemy) {
             enemy.update(dt);
         });
-        allTreasures.forEach(function(treasure) {
+        allTreasures.forEach(function (treasure) {
             treasure.update(dt);
         });
         // update player object
         player.update(dt);
         // update indicators objects
-        allIndicators.forEach(function(indicator) {
+        allIndicators.forEach(function (indicator) {
             indicator.update(dt);
         });
     }
@@ -141,16 +137,14 @@ var Engine = (function (global) {
      * they are just drawing the entire screen over and over.
      */
     function render() {
-        'use strict';
         drawGameBoard();
         renderEntities();
     }
 
     function drawGameBoard() {
         /* This array holds the relative URL to the image used
-        * for that particular row of the game level.
-        */
-        'use strict';
+         * for that particular row of the game level.
+         */
         ctx.fillStyle = "salmon";
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -158,7 +152,7 @@ var Engine = (function (global) {
         // the first row is of water
         rowImages.push('images/water-block.png');
         // the number of stone rows needed is the total rows for the game board, minus 1 row of water + 2 rows of grass
-        var numStoneRows =  gb.numRows - 3;
+        var numStoneRows = gb.numRows - 3;
         for (var i = 1; i <= numStoneRows; i++) {
             rowImages.push('images/stone-block.png');
         }
@@ -186,14 +180,13 @@ var Engine = (function (global) {
 
     }
 
-    function drawBoardTileRectangle (colNum, rowNum) {
-        'use strict';
+    function drawBoardTileRectangle(colNum, rowNum) {
         // debug rectangles showing game board tiles
         ctx.rect(
-                (colNum * gb.tileWidth) - gb.tileWidth + gb.boardStartX, // horizontal location to draw
-                (rowNum * gb.tileHeight) - gb.tileHeight + gb.boardStartY, // vertical location to draw
-                gb.tileWidth,
-                gb.tileHeight
+            (colNum * gb.tileWidth) - gb.tileWidth + gb.boardStartX, // horizontal location to draw
+            (rowNum * gb.tileHeight) - gb.tileHeight + gb.boardStartY, // vertical location to draw
+            gb.tileWidth,
+            gb.tileHeight
         );
         ctx.stroke();
     }
@@ -206,14 +199,13 @@ var Engine = (function (global) {
         /* Loop through all of the objects and call
          * the render function you have defined.
          */
-        'use strict';
-        allIndicators.forEach(function(indicator) {
+        allIndicators.forEach(function (indicator) {
             indicator.render();
         });
-        allEnemies.forEach(function(enemy) {
+        allEnemies.forEach(function (enemy) {
             enemy.render();
         });
-        allTreasures.forEach(function(treasure) {
+        allTreasures.forEach(function (treasure) {
             treasure.render();
         });
         player.render();
