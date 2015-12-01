@@ -1,0 +1,8 @@
+{
+  "name": "frontend-nanodegree-arcade-game",
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "bootstrap": "~3.3.6",
+    "howler.js": "~1.1.28"
+  }
+}

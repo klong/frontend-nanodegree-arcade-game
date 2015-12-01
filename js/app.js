@@ -91,9 +91,11 @@ Enemy.prototype.offGameBoard = function () {
     if (this.speed > 0 && this.x > gb.boardStartX + gb.gameBoardWidth ||
         this.speed < 0 && this.x < gb.boardStartX - gb.tileWidth)
     // re-position the enemy horizontaly off left of game board
+    {
         this.x = gb.boardStartX - (2 * gb.tileWidth);
-    // set a new positive random speed for enemy
-    this.randomSpeed(100, 200);
+        // set a new positive random speed for enemy
+        this.randomSpeed(100, 200)
+    }
 };
 
 
